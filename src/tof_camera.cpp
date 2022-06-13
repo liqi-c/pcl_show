@@ -14,7 +14,7 @@ TofCamera::~TofCamera()
 
 bool TofCamera::setRobotPose(PoseStamped &pose)
 {
-
+    return true;
 }
 
 #ifdef WITH_CAMERA_DRIVER

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(pcl_test)
 
-add_definitions(-std=c++11)
+add_definitions(-std=c++14)
 
 # # "option"用来定义宏，"ON"表示打开，"OFF"表示关闭
 # option (USE_CROSS_COM "Use cross compile" OFF)
@@ -59,35 +59,41 @@ endif(${USE_CROSS_COM})
 
 include_directories(
     # ${OPENNI2_INCLUDE}
+    /usr/include/pcl-1.10
+    /usr/include/eigen3
+    /usr/include/vtk-7.1  ## add for qli enviroment
     ./include
     # ./include/camera_driver
     ./include/depth_image_to_pointcloud)
 
-add_library(${PROJECT_NAME}
-#    src/main.cpp
-    src/isca_tof_camera.cpp
-    src/tof_camera.cpp
-    # src/camera_driver/camera_driver.cpp
-    # src/camera_driver/camera_driver_api.cpp
-    src/depth_image_to_pointcloud/depth_image_to_pointcloud.cpp
-    src/depth_image_to_pointcloud/depth_image_to_pointcloud_api.cpp
-    )
+# add_library(${PROJECT_NAME}
+# #    src/main.cpp
+#     src/isca_tof_camera.cpp
+#     src/tof_camera.cpp
+#     src/depth_image_to_pointcloud/depth_image_to_pointcloud.cpp
+#     src/depth_image_to_pointcloud/depth_image_to_pointcloud_api.cpp
+#     )
 if(${USE_CROSS_COM})
     target_link_libraries(${PROJECT_NAME} ${FLANN_LIB} ${PCL_LIB} ${BOOST_LIB})
 endif (${USE_CROSS_COM})
 
 add_executable(test
     src/main.cpp
+
     src/isca_tof_camera.cpp
     src/tof_camera.cpp
-    # src/camera_driver/camera_driver.cpp
-    # src/camera_driver/camera_driver_api.cpp
     src/depth_image_to_pointcloud/depth_image_to_pointcloud.cpp
     src/depth_image_to_pointcloud/depth_image_to_pointcloud_api.cpp
-    )
+)
+#FIND_PACKAGE( PCL REQUIRED)
+link_directories(/usr/local/lib)
+set(PCL_LIBS "pcl_filters;pcl_search;pcl_segmentation;pcl_common;pcl_kdtree;pcl_sample_consensus;flann_cpp_s;boost_filesystem;pcl_visualization;pcl_io;")
+set(VTK_LIBS "vtkCommonCore-7.1;vtkRenderingCore-7.1;vtkCommonDataModel-7.1;vtkCommonMath-7.1")
+target_link_libraries(test ${PCL_LIBS} ${VTK_LIBS})
+#target_link_libraries(test ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} ${PCL_LIBRARIES}) // not work 
+
 if(${USE_CROSS_COM})
     target_link_libraries(test ${CMAKE_CURRENT_SOURCE_DIR}/bin/lib/libaxon.a ${FLANN_LIB} ${PCL_LIB} ${BOOST_LIB})
 endif (${USE_CROSS_COM})
-#target_link_libraries(${PROJECT_NAME} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} ${Boost_LIBRARIES} libOpenNI2.so ${PCL_LIBRARIES} )
-#add_dependencies(${PROJECT_NAME} OpenNI2)
 
+#add_dependencies(${PROJECT_NAME} OpenNI2)

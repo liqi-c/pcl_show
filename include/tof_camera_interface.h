@@ -76,6 +76,7 @@ public:
     virtual bool setCameraTf(CameraTF tf)
     {
         tf_ = tf;
+        return 0;
     }
 #ifdef WITH_CAMERA_DRIVER
     virtual bool getOneFrameDepthImage(DepthImage& image) = 0;
