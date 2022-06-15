@@ -7,6 +7,8 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/pcl_visualizer.h>
+
 #include <thread>
 
 typedef struct{
@@ -69,8 +71,79 @@ bool covertToPointCloud(s_xyzdata * tmp_data ,s_PointData * read_pcl , iscas::Po
 
     return 0;
 }
+bool Convert_IscasPCL_PCL(iscas::PointCloud& pointcloud_ori, iscas::PointCloud& pointcloud_hdl,
+                       pcl::PointCloud<pcl::PointXYZ> & pcl_out1,pcl::PointCloud<pcl::PointXYZ> & pcl_out2)
+{
+    return 0;
+}
 
-bool Convert_PointCloud_To_PCL(iscas::PointCloud& pointcloud_ori, iscas::PointCloud& pointcloud_hdl)
+bool Convert_PointCloud_To_PCL_Show_Double_In1Windows(iscas::PointCloud& pointcloud_ori, iscas::PointCloud& pointcloud_hdl)
+{
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data_ori(new pcl::PointCloud<pcl::PointXYZ>());
+    size_t point_size = pointcloud_ori.width * pointcloud_ori.height;
+    if(pcl_data_ori->points.size() != point_size)
+    {
+        pcl_data_ori->points.resize(point_size);
+    }
+    printf("Ori point size = %ld \n",point_size);
+    for(size_t i=0;i<point_size;i++)
+    {
+        pcl_data_ori->points[i]._PointXYZ::x = pointcloud_ori.x_set[i];
+        pcl_data_ori->points[i]._PointXYZ::y = pointcloud_ori.y_set[i];
+        pcl_data_ori->points[i]._PointXYZ::z = pointcloud_ori.z_set[i];
+		// std::cout<<"ori : i:"<< i << ", x:"<<pcl_data_ori->points[i]._PointXYZ::x <<
+        //     ",y:"<<pcl_data_ori->points[i]._PointXYZ::y<<",z:"<<pcl_data_ori->points[i]._PointXYZ::z<<std::endl;
+    }
+    pcl_data_ori->width = pointcloud_ori.width;
+    pcl_data_ori->height = pointcloud_ori.height;
+    pcl_data_ori->header.stamp = pointcloud_ori.time_stamp;
+    pcl_data_ori->header.frame_id = "camera_link_ori";
+
+	// PointCloud类型转换为pcl::PointCloud
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data_hdl(new pcl::PointCloud<pcl::PointXYZ>());
+
+    point_size = pointcloud_hdl.width * pointcloud_hdl.height;
+    if(pcl_data_hdl->points.size() != point_size)
+    {
+        pcl_data_hdl->points.resize(point_size);
+    }
+    printf("Hdl point size = %ld \n",point_size);
+    for(size_t i=0;i<point_size;i++)
+    {
+        pcl_data_hdl->points[i]._PointXYZ::x = pointcloud_hdl.x_set[i];
+        pcl_data_hdl->points[i]._PointXYZ::y = pointcloud_hdl.y_set[i];
+        pcl_data_hdl->points[i]._PointXYZ::z = pointcloud_hdl.z_set[i];
+//		std::cout<<"hdl : i:"<< i << ", x:"<<pcl_data_hdl->points[i]._PointXYZ::x <<
+//           ",y:"<<pcl_data_hdl->points[i]._PointXYZ::y<<",z:"<<pcl_data_hdl->points[i]._PointXYZ::z<<std::endl;
+    }
+    pcl_data_hdl->width = pointcloud_hdl.width;
+    pcl_data_hdl->height = pointcloud_hdl.height;
+    pcl_data_hdl->header.stamp = pointcloud_hdl.time_stamp;
+    pcl_data_hdl->header.frame_id = "camera_link_hdl";
+
+    pcl::visualization::PCLVisualizer viewer("Cloud Viewer");
+
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> cloud_tr_color_h(pcl_data_ori, 255, 255,0);// yellow
+	viewer.addPointCloud(pcl_data_ori, cloud_tr_color_h, "cloud_ori");
+
+	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> cloud_icp_color_h(pcl_data_hdl, 255, 0,0); // red
+	viewer.addPointCloud(pcl_data_hdl, cloud_icp_color_h, "cloud_hdl");
+
+	viewer.addCoordinateSystem(0.0);
+	viewer.initCameraParameters();
+
+    //viewer.setCameraPosition(0,0,2,0,2,0,0);  // -1 0 2 2 0 0 0
+    viewer.setCameraPosition(CameraPose[0],CameraPose[1],CameraPose[2],CameraPose[3],CameraPose[4],CameraPose[5],CameraPose[6]);
+
+    //viewer_pvs->spinOnce(100);  // 100ms
+    while (!viewer.wasStopped ())
+    {
+        viewer.spinOnce();
+    }
+	return 0 ;
+}
+
+bool Convert_PointCloud_To_PCL_Show_Double_In2Windows(iscas::PointCloud& pointcloud_ori, iscas::PointCloud& pointcloud_hdl)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data_ori(new pcl::PointCloud<pcl::PointXYZ>());
     size_t point_size = pointcloud_ori.width * pointcloud_ori.height;
@@ -152,7 +225,7 @@ bool Convert_PointCloud_To_PCL(iscas::PointCloud& pointcloud_ori, iscas::PointCl
 	return 0 ;
 }
 
-bool readxyz_showdouble(iscas::PointCloud& pnt_cloud_origin, iscas::PointCloud& pnt_cloud)
+bool Readxyz_ShowDouble(iscas::PointCloud& pnt_cloud_origin, iscas::PointCloud& pnt_cloud)
 {
     s_PointData read_pcl[PCL_FRAME_LENGTH] = { 0 } ;
     static int index = 35 ;
@@ -164,9 +237,9 @@ bool readxyz_showdouble(iscas::PointCloud& pnt_cloud_origin, iscas::PointCloud& 
     covertToPointCloud(&tmp_data[1] , read_pcl , pnt_cloud);
     index ++ ;
 
-	if(Convert_PointCloud_To_PCL(pnt_cloud_origin, pnt_cloud))
+	if(Convert_PointCloud_To_PCL_Show_Double_In2Windows(pnt_cloud_origin, pnt_cloud))
 	{
-		std::cout << "Convert_PointCloud_To_PCL failed . " << std::endl;
+		std::cout << "Convert_PointCloud_To_PCL_Show_Double_In2Windows failed . " << std::endl;
 		return -1;
 	}
     return 0;
@@ -223,7 +296,7 @@ bool Convert_PointCloud_To_PCL_Continue_Show(boost::shared_ptr<pcl::visualizatio
     return 0;
 }
 
-bool continue_readxyz_and_show(iscas::PointCloud& pnt_cloud_origin)
+bool Readxyz_And_ContinueShow(iscas::PointCloud& pnt_cloud_origin)
 {
     boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_pvs(new pcl::visualization::PCLVisualizer ("3D Viewer"));
 
@@ -309,9 +382,14 @@ int main(int argc, char *argv[])
 
 #ifdef READ_FROM_XYZ
   // read from xyz file .
-       //continue_readxyz_and_show(pnt_cloud_origin);
-       readxyz_showdouble(pnt_cloud_origin, pnt_cloud);
-        continue;
+       //Readxyz_And_ContinueShow(pnt_cloud_origin);
+       //Readxyz_ShowDouble(pnt_cloud_origin, pnt_cloud);
+
+    s_PointData read_pcl[PCL_FRAME_LENGTH] = { 0 } ;
+    static int index = 25 ;
+    readSunnyOripcl("/home/qli/Desktop/xyz", "ori", index  ,read_pcl);
+    covertToPointCloud(&tmp_data[0], read_pcl , pnt_cloud_origin);
+
 #endif
 
 #ifdef WITH_CAMERA_DRIVER
@@ -338,9 +416,9 @@ int main(int argc, char *argv[])
         }
 #ifdef READ_FROM_XYZ
         // 用于测试输出的结果是否正确
-		if(Convert_PointCloud_To_PCL(pnt_cloud_origin, pnt_cloud))
+		if(Convert_PointCloud_To_PCL_Show_Double_In1Windows(pnt_cloud_origin, pnt_cloud))
 		{
-			std::cout << "Convert_PointCloud_To_PCL failed . " << std::endl;
+			std::cout << "Convert_PointCloud_To_PCL_Show_Double_In2Windows failed . " << std::endl;
 			return -1;
 		}
 #endif
