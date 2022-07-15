@@ -16,7 +16,6 @@ if(OPENMP_FOUND)
 endif()
 
 include_directories(
-    # ${OPENNI2_INCLUDE}
     /usr/local/include/pcl-1.12
     /usr/include/eigen3
     /usr/include/vtk-6.3  ## add for qli enviroment
