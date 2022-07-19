@@ -4,6 +4,15 @@ typedef enum {
     REGULAR_FILE,
     DIR_FILE
 }e_file_type;
+void usage(char * filename){
+    printf("usage: \n");
+    printf("     1 . %s </filepath/*.pcd>                   -- show signle pcd file. \n",filename);
+    printf("     2 . %s </filepath/*.pcd> </filepath/*.pcd> -- show double pcd file. \n",filename);
+    printf("     3 . %s <pcd_file_dir>                      -- show continue signle pcd file. \n",filename);
+    printf("     4 . %s <pcd_file_dir>    <pcd_file_dir>    -- show continue double pcd file. \n",filename);
+
+    return ;
+}
 int main(int argc, char *argv[])
 {
 	int i;
@@ -58,7 +67,7 @@ int main(int argc, char *argv[])
             }
             break;
         default :
-            printf("Error!\n");
+            usage(argv[0]);
     }
     // Read_PCD_and_Show_Single("/home/liq/CODE/ori_pcl/pcl_0002_2022-07-12_10-04-26_756.pcd");
     // Read_PCD_and_Show_Double("/home/liq/CODE/ori_pcl/pcl_0002_2022-07-12_10-04-26_756.pcd","/home/liq/CODE/ori_pcl/pcl_0002_2022-07-12_10-04-26_756.pcd");

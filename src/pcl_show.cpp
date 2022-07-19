@@ -3,7 +3,24 @@
 
 s_xyzdata tmp_data[2] ;
 
-int CameraPose[10];
+//int CameraPose[7]={0,0,2,0,2,0,0};   
+int CameraPose[7]={-2,0,1,2,0,0,0};  
+
+// （pos_x,pos_y,pos_z）为相机光心，
+//  (view_x, view_y, view_z)为光轴上的一点，他们的差向量决定了光轴方向，
+//  (up_x, up_y, up_z)确定相机的正上方
+
+// 0 0 0 0 1 0 0 0 2 0 ### 过于大 ，缩小后视角是俯视试图 
+
+// 0 0 2 0 2 0 0 ## z轴看不到，y 朝上，X水平 
+// 0 0 2 2 0 0 0 ## z轴看不到，x 朝上，y水平 
+// -2 0 2 2 0 0 0 ## x,z轴夹角面向屏幕，y水平 
+// -2 0 1 2 0 0 0 ## x,z轴夹角面向屏幕，y水平 
+
+// 		## 前面3位，相当于是相机的位置，只有一位有值，则相机在轴线上，看不到对应的轴，如果2位有值，则相机在这两个轴线的中间夹角45度，有值的两个方向成90度夹角面对屏幕 
+// 		## 中间3位，视角方向，哪个有值，则看向哪个轴（面），有值的那个轴（面）朝上
+//    viewer_pvs.addCoordinateSystem (0.1);    // 参数越大，坐标轴越宽 
+
 
 bool readSunnyXyz(const char * file , s_PointData *read_pcl)
 {
@@ -96,14 +113,18 @@ bool PCL_Show_Signle(pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data)
 	viewer.setBackgroundColor(0, 0, 0);
 
  //   pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> cloud_tr_color_h(pcl_data, 255, 0, 0); 
-	viewer.addPointCloud(pcl_data, "cloud_ori"); 			
+	//viewer.addPointCloud(pcl_data, "cloud_ori"); 			
+    pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> rgbz(pcl_data, "z"); // 配置沿着Z轴的颜色变化
+	viewer.addPointCloud<pcl::PointXYZ>(pcl_data, rgbz, "cloud_ori");
 
-	viewer.addCoordinateSystem(0.0);
+	viewer.addCoordinateSystem(0.1);
 
-    viewer.setCameraPosition(0,0,2,0,2,0,0);  // -1 0 2 2 0 0 0
-    //viewer.setCameraPosition(CameraPose[0],CameraPose[1],CameraPose[2],CameraPose[3],CameraPose[4],CameraPose[5],CameraPose[6]); 
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 0.01, "cloud_ori");// modify show size 
-//	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0.2, 0.7, "cloud_ori");//设置点云显示的颜色，rgb 在 [0,1] 范围
+    viewer.setCameraPosition(CameraPose[0],CameraPose[1],CameraPose[2],CameraPose[3],CameraPose[4],CameraPose[5],CameraPose[6]); 
+    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud_ori");// modify show size 
+
+	//viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0.2, 0.7, "cloud_ori");//红色，设置点云显示的颜色，rgb 在 [0,1] 范围
+	//viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0, 0, 0, "cloud_ori");//黑色，设置点云显示的颜色，rgb 在 [0,1] 范围
+
 //	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1, "cloud_ori");		//设置点云透明度，默认 1 【Float going from 0.0 (transparent) to 1.0 (opaque)】
 //	viewer.initCameraParameters();
 
@@ -130,8 +151,7 @@ bool PCL_Show_Double_In_1_Windows(pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data_o
 	viewer.addCoordinateSystem(0.0);
 	viewer.initCameraParameters();
 
-    viewer.setCameraPosition(0,0,2,0,2,0,0);  // -1 0 2 2 0 0 0
-    //viewer.setCameraPosition(CameraPose[0],CameraPose[1],CameraPose[2],CameraPose[3],CameraPose[4],CameraPose[5],CameraPose[6]); 
+    viewer.setCameraPosition(CameraPose[0],CameraPose[1],CameraPose[2],CameraPose[3],CameraPose[4],CameraPose[5],CameraPose[6]); 
 
     //viewer_pvs->spinOnce(100);  // 100ms
     while (!viewer.wasStopped ())
@@ -147,7 +167,7 @@ bool PCL_Show_Double_In_2_Windows(pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data_o
 
     pcl::visualization::PCLVisualizer viewer("Cloud Viewer");
 
-    viewer.setCameraPosition(0,0,2,0,2,0,0); 
+    viewer.setCameraPosition(CameraPose[0],CameraPose[1],CameraPose[2],CameraPose[3],CameraPose[4],CameraPose[5],CameraPose[6]); 
 
 	int v1(0);  //创建左窗口显式cloud1
 	viewer.createViewPort(0, 0, 0.5, 1.0, v1);  //左右窗口大小划分，1:1
@@ -156,7 +176,7 @@ bool PCL_Show_Double_In_2_Windows(pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data_o
 	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> rgb1(pcl_data_ori, "z");
 	viewer.addPointCloud<pcl::PointXYZ>(pcl_data_ori, rgb1, "cloud1", v1);
 	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud1", v1);
-	viewer.addCoordinateSystem(1.0, "input cloud1", v1);
+	viewer.addCoordinateSystem(0.1, "input cloud1", v1);
 
 	int v2(1);  //创建右窗口显示cloud2
 	viewer.createViewPort(0.5, 0, 1.0, 1.0, v2);  //左右窗口大小划分，1:1
@@ -165,7 +185,7 @@ bool PCL_Show_Double_In_2_Windows(pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data_o
 	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> rgb2(pcl_data_hdl, "z");
 	viewer.addPointCloud<pcl::PointXYZ>(pcl_data_hdl, rgb2, "cloud2", v2);
 	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud2", v2);
-	viewer.addCoordinateSystem(1.0, "input cloud2", v2);
+	viewer.addCoordinateSystem(0.1, "input cloud2", v2);
 
     while (!viewer.wasStopped ())
     {
@@ -177,69 +197,68 @@ bool PCL_Show_Double_In_2_Windows(pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data_o
 bool PCL_Show_Continue_One(pcl::visualization::PCLVisualizer viewer_pvs,pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_data)
 {
     viewer_pvs.setBackgroundColor (0, 0, 0); // config backend color:dark 
-    viewer_pvs.addCoordinateSystem (1.0);    // show coordinate xyz 
+    viewer_pvs.addCoordinateSystem (0.1);    // show coordinate xyz 
 
-   // viewer_pvs.setCameraPosition(CameraPose[0],CameraPose[1],CameraPose[2],CameraPose[3],CameraPose[4],CameraPose[5],CameraPose[6]); 
-    viewer_pvs.setCameraPosition(0,0,2,0,2,0,0); 
+    viewer_pvs.setCameraPosition(CameraPose[0],CameraPose[1],CameraPose[2],CameraPose[3],CameraPose[4],CameraPose[5],CameraPose[6]); 
+
    // viewer_pvs.initCameraParameters ();
 
-        // 0 0 2 0 2 0 0 ## z轴看不到，y 朝上，X水平 
-		// 前面3位，相当于是相机的位置，只有一位有值，则相机在轴线上，看不到对应的轴，如果2位有值，则相机在这两个轴线的中间夹角45度，有值的两个方向成90度夹角面对屏幕 
-		// 中间3位，视角方向，哪个有值，则看向哪个轴（面），有值的那个轴（面）朝上
+    pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> rgbz(pointcloud_data, "z"); // 配置沿着Z轴的颜色变化  
+//    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> single_color (pointcloud_data, 0, 255, 0);
 
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> single_color (pointcloud_data, 0, 255, 0);
+    viewer_pvs.addPointCloud<pcl::PointXYZ>(pointcloud_data, rgbz, "pointcloud_data");
+    viewer_pvs.updatePointCloud(pointcloud_data, rgbz, "pointcloud_data");
 
-    viewer_pvs.addPointCloud<pcl::PointXYZ>(pointcloud_data, single_color, "pointcloud_data");
-    viewer_pvs.updatePointCloud(pointcloud_data, "pointcloud_data");
-
-    viewer_pvs.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 0.01, "pointcloud_data");// modify show size 
+    viewer_pvs.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "pointcloud_data");// modify show size 
 	//viewer_pvs.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0.2, 0.7, "pointcloud_data");	//设置点云显示的颜色，rgb 在 [0,1] 范围
 	//viewer_pvs.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1, "pointcloud_data");			//设置点云透明度，默认 1 【Float going from 0.0 (transparent) to 1.0 (opaque)】
 
     viewer_pvs.spinOnce(1000);  // 100ms
-    viewer_pvs.removeAllPointClouds();  // 移除当前所有点云
 
-    // while (!viewer_pvs.wasStopped ())
-    // {
-    //     viewer_pvs.spinOnce();
-    // }
     return 0;
 }
 bool PCL_Show_Continue_Double(pcl::visualization::PCLVisualizer viewer,pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1,pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2)
 {
+    static int init_flag = 0;
     viewer.setBackgroundColor (0, 0, 0); // config backend color:dark 
-    viewer.addCoordinateSystem (1.0);    // show coordinate xyz 
-    viewer.initCameraParameters ();
-    viewer.initCameraParameters ();
+    viewer.addCoordinateSystem (0.1);    // show coordinate xyz 
 
-   // viewer_pvs.setCameraPosition(CameraPose[0],CameraPose[1],CameraPose[2],CameraPose[3],CameraPose[4],CameraPose[5],CameraPose[6]); 
-    viewer.setCameraPosition(0,0,2,0,2,0,0); 
+    viewer.setCameraPosition(CameraPose[0],CameraPose[1],CameraPose[2],CameraPose[3],CameraPose[4],CameraPose[5],CameraPose[6]); 
 
-        // 0 0 2 0 2 0 0 ## z轴看不到，y 朝上，X水平 
-		// 前面3位，相当于是相机的位置，只有一位有值，则相机在轴线上，看不到对应的轴，如果2位有值，则相机在这两个轴线的中间夹角45度，有值的两个方向成90度夹角面对屏幕 
-		// 中间3位，视角方向，哪个有值，则看向哪个轴（面），有值的那个轴（面）朝上
+	static int v1(0);  //创建左窗口显式cloud1
+    pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> rgb1(cloud1, "z");
 
-	int v1(0);  //创建左窗口显式cloud1
-	viewer.createViewPort(0, 0, 0.5, 1.0, v1);  //左右窗口大小划分，1:1
-	viewer.setBackgroundColor(0, 0, 0, v1);
-//	viewer.addText("Cloud1", 2, 2, "Cloud1", v1);  //窗口下的标题
-	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> rgb1(cloud1, "z");
-	viewer.addPointCloud<pcl::PointXYZ>(cloud1, rgb1, "cloud1", v1);
+    if(1 != init_flag)
+	{
+        viewer.createViewPort(0, 0, 0.5, 1.0, v1);  //左右窗口大小划分，1:1
+	    viewer.setBackgroundColor(0, 0, 0, v1);
+    //	viewer.addText("Cloud1", 2, 2, "Cloud1", v1);  //窗口下的标题
+        viewer.addPointCloud<pcl::PointXYZ>(cloud1, rgb1, "cloud1", v1);
+    }    
+    viewer.updatePointCloud(cloud1, rgb1, "cloud1");
+
 	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud1", v1);
-	viewer.addCoordinateSystem(1.0, "input cloud1", v1);
+//	viewer.addCoordinateSystem(0.1, "input cloud1", v1);
 
-	int v2(1);  //创建右窗口显示cloud2
-	viewer.createViewPort(0.5, 0, 1.0, 1.0, v2);  //左右窗口大小划分，1:1
-	viewer.setBackgroundColor(0, 0, 0, v2);
-//	viewer.addText("Cloud2", 2, 2, "Cloud2", v2);  //窗口下的标题
+	static int v2(1);  //创建右窗口显示cloud2
 	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> rgb2(cloud2, "z");
-	viewer.addPointCloud<pcl::PointXYZ>(cloud2, rgb2, "cloud2", v2);
+
+    if(1 != init_flag)
+	{
+        viewer.createViewPort(0.5, 0, 1.0, 1.0, v2);  //左右窗口大小划分，1:1
+        viewer.setBackgroundColor(0, 0, 0, v2);
+    //	viewer.addText("Cloud2", 2, 2, "Cloud2", v2);  //窗口下的标题
+	    viewer.addPointCloud<pcl::PointXYZ>(cloud2, rgb2, "cloud2", v2);
+    }  
+    viewer.updatePointCloud(cloud2, rgb2, "cloud2");
+
 	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud2", v2);
-	viewer.addCoordinateSystem(1.0, "input cloud2", v2);
+//	viewer.addCoordinateSystem(0.1, "input cloud2", v2);
 
     viewer.spinOnce(1000);  // 100ms
-    viewer.removeAllPointClouds();  // 移除当前所有点云
+ //   viewer.removeAllPointClouds();  // 移除当前所有点云
  //   viewer.removeAllTexts();  // 移除当前所有点云
+    init_flag = 1;
 
     return 0;
 }
