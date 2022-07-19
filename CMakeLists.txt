@@ -22,9 +22,9 @@ include_directories(
     ./include
     ./include/depth_image_to_pointcloud)
 
-add_executable(test
+add_executable(pcl_show
     src/main.cpp
-    src/pcl_show.cpp 
+    src/pcl_show.cpp
     src/isca_tof_camera.cpp
     src/tof_camera.cpp
     src/depth_image_to_pointcloud/depth_image_to_pointcloud.cpp
@@ -33,4 +33,4 @@ add_executable(test
 link_directories(/usr/local/lib)
 set(PCL_LIBS "pcl_filters;pcl_search;pcl_segmentation;pcl_common;pcl_kdtree;pcl_sample_consensus;flann_cpp_s;boost_filesystem;pcl_visualization;pcl_io;")
 set(VTK_LIBS "vtkCommonCore-6.3;vtkRenderingCore-6.3;vtkCommonDataModel-6.3;vtkCommonMath-6.3")
-target_link_libraries(test ${PCL_LIBS} ${VTK_LIBS})
+target_link_libraries(pcl_show ${PCL_LIBS} ${VTK_LIBS})

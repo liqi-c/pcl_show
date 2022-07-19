@@ -20,28 +20,28 @@ int main(int argc, char *argv[])
 	char *ptr;
     int type[2]={};
     if(0 != argc){
-        printf("argc = %d \n",argc);
-        for (i = 1; i < argc; i++) 
+        // printf("argc = %d \n",argc);
+        for (i = 1; i < argc; i++)
         {
-            if (lstat(argv[i], &buf) < 0) 
+            if (lstat(argv[i], &buf) < 0)
             {
                 perror("lstat");
                 continue;
             }
             if(S_ISREG(buf.st_mode))
-            {    
-                ptr = "regular file";
+            {
+                ptr = "Regular File";
                 type[i-1]= REGULAR_FILE;
             }
-            else if (S_ISDIR(buf.st_mode))	
-            {    
-                ptr = "directory file";
+            else if (S_ISDIR(buf.st_mode))
+            {
+                ptr = "Directory";
                 type[i-1]= DIR_FILE;
             }
             else
                 ptr = "** unknown mode **";
-            
-            printf("[%d] %s: %s.[%d]\n",i, argv[i],ptr,type[i-1]);
+
+            printf("%s: %s.[%d]\n",argv[i],ptr,type[i-1]);
         }
     }
     switch(argc)
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
             {
                 Read_PCD_and_Show_Single(argv[1]);
             }
-            else  //dir 
+            else  //dir
             {
                 Read_PCD_and_Show_Continue_Single(argv[1]);
             }
@@ -74,6 +74,6 @@ int main(int argc, char *argv[])
 
     // Read_PCD_and_Show_Continue_Double("/home/liq/CODE/ori_pcl","/home/liq/CODE/hdl_pcl");
     // Read_PCD_and_Show_Continue_Single("/home/liq/CODE/ori_pcl");
- 
+
     return 0;
 }
