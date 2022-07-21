@@ -18,7 +18,7 @@ endif()
 include_directories(
     /usr/local/include/pcl-1.12
     /usr/include/eigen3
-    /usr/include/vtk-6.3  ## add for qli enviroment
+    /usr/include/vtk-6.3
 )
 
 add_executable(pcl_show

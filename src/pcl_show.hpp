@@ -22,9 +22,9 @@ typedef struct{
 
 typedef struct ori_data
 {
-    float x[PCL_FRAME_LENGTH]; // = new float///< @brief 输出的点云x坐标序列数据起始指针
-    float y[PCL_FRAME_LENGTH]; // = new float///< @brief 输出的点云y坐标序列数据起始指针
-    float z[PCL_FRAME_LENGTH]; // = new float///< @brief 输出的点云z坐标序列数据起始指针
+    float x[PCL_FRAME_LENGTH];
+    float y[PCL_FRAME_LENGTH];
+    float z[PCL_FRAME_LENGTH];
 }s_xyzdata; 
 
 bool Read_PCD_and_Show_Single(const char * life_path);
