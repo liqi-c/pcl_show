@@ -35,8 +35,8 @@ int main(int argc, char *argv[])
             }
             else if (S_ISDIR(buf.st_mode))
             {
-                ptr = "Directory";
-                type[i-1]= DIR_FILE;
+                ptr = "Directory";        
+                type[i-1]= DIR_FILE;      
             }
             else
                 ptr = "** unknown mode **";
@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
         default :
             usage(argv[0]);
     }
+
     // Read_PCD_and_Show_Single("/home/liq/CODE/ori_pcl/pcl_0002_2022-07-12_10-04-26_756.pcd");
     // Read_PCD_and_Show_Double("/home/liq/CODE/ori_pcl/pcl_0002_2022-07-12_10-04-26_756.pcd","/home/liq/CODE/ori_pcl/pcl_0002_2022-07-12_10-04-26_756.pcd");
 
