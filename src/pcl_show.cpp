@@ -12,7 +12,7 @@ CameraPose 参数说明：
 	## 前面3位，相当于是相机的位置，只有一位有值，则相机在轴线上，看不到对应的轴，如果2位有值，则相机在这两个轴线的中间夹角45度，有值的两个方向成90度夹角面对屏幕
 	## 中间3位，视角方向，哪个有值，则看向哪个轴（面），有值的那个轴（面）朝上
    viewer_pvs.addCoordinateSystem (0.1);    // 参数越大，坐标轴越宽
-   
+
 配置示例： 
     0 0 2 0 2 0 0 ## z轴看不到，y 朝上，X水平
     0 0 2 2 0 0 0 ## z轴看不到，x 朝上，y水平
@@ -44,6 +44,7 @@ bool Read_Pcd(const char * file_path, pcl::PointCloud<pcl::PointXYZ>::Ptr pointc
 	}
     return true ;
 }
+#if 0
 bool Convert_SunnyXyz_To_IscasPCL(s_xyzdata * tmp_data ,s_PointData * read_pcl , iscas::PointCloud& pnt_cloud_origin)
 {
     for (int i = 0; i < PCL_FRAME_LENGTH; i++)
@@ -106,6 +107,7 @@ bool Convert_IscasPCL_To_PCL(iscas::PointCloud& pointcloud_ori, pcl::PointCloud<
     pcl_data_ori->header.frame_id = "camera_link_ori";
     return 0 ;
 }
+#endif 
 bool PCL_Show_Signle(pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data)
 {
     pcl::visualization::PCLVisualizer viewer("Cloud Viewer");
@@ -380,84 +382,5 @@ bool Read_PCD_and_Show_Continue_Double(const char * life_path, const char * righ
             break;
         }
     }while(1);
-    return 0;
-}
-
-int test_alg(void)
-{
-    //constructor
-    iscas::handle_t h = iscas::tof_camera_create();
-    iscas::PointCloud pnt_cloud_origin;
-    iscas::PointCloud pnt_cloud;
-    // iscas::DepthImage image;
-    iscas::PoseStamped pose;
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_ori(new pcl::PointCloud<pcl::PointXYZ>());
-    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_hdl(new pcl::PointCloud<pcl::PointXYZ>());
-
-    pcl::visualization::PCLVisualizer viewer_pvs("Cloud Viewer");
-
-    iscas::Param param;
-    param.max_depth = 1.2;
-    param.min_depth = 0;
-    param.max_hight = 0.1;
-    param.min_hight = 0;
-
-    param.camera_offset = 0.04; //相机在地面的高度
-    param.size_leaf = 0.005; //下采样参数
-    //设置相机的参数,这个axon保持默认
-    param.camera_param.scaling = 0.000333333;
-    param.camera_param.camera_cf.fx = 507.075;
-    param.camera_param.camera_cf.fy = 506.05;
-    param.camera_param.camera_cf.cx = 306.375;
-    param.camera_param.camera_cf.cy = 227.914;
-    //设置默认镜头到相机坐标系变换关系,这个axon保持默认
-    param.camera_param.camera_tf.x = 0;
-    param.camera_param.camera_tf.y = -0.0055f;
-    param.camera_param.camera_tf.z = 0;
-    param.camera_param.camera_tf.yaw = -1.570796326794896619231321691639751442f;
-    param.camera_param.camera_tf.pitch = 0;
-    param.camera_param.camera_tf.roll = -1.570796326794896619231321691639751442f;
-
-    iscas::tof_camera_set_paramters(h, param);
-
-    while (1)
-    {
-#if  0
-        s_PointData read_pcl[PCL_FRAME_LENGTH] = { 0 };
-        static int index = 25 ;
-        readSunnyXyz("/home/liq/CODE/ori_16.xyz" , read_pcl);
-        Convert_SunnyXyz_To_IscasPCL(&tmp_data[0], read_pcl , pnt_cloud_origin);
-#else
-        Read_Pcd("/home/liq/CODE/ori_16.pcd" , pointcloud_ori);
-
-        pnt_cloud_origin.x_set = tmp_data[0].x;
-        pnt_cloud_origin.y_set = tmp_data[0].y;
-        pnt_cloud_origin.z_set = tmp_data[0].z;
-
-        Convert_PCL_To_IscasPCL(pointcloud_ori, pnt_cloud_origin);
-
-#endif
-        bool ret1 = iscas::tof_camera_cvt_point_cloud_to_point_cloud(h, pnt_cloud_origin, pnt_cloud, pose);
-
-        if (false == ret1) {
-            std::cout << "Convert one frame failed!" << std::endl;
-			return -1;
-        }
-
-       // 用于测试输出的结果是否正确
-        Convert_IscasPCL_To_PCL(pnt_cloud_origin , pointcloud_ori);
-        Convert_IscasPCL_To_PCL(pnt_cloud , pointcloud_hdl);
-
-        //if(PCL_Show_Double_In_1_Windows(pointcloud_ori, pointcloud_hdl))
-        //if(PCL_Show_Double_In_2_Windows(pointcloud_ori, pointcloud_hdl))
-        //if(PCL_Show_Signle( pointcloud_ori))
-        {
- 			std::cout << "PCL_Show_Double_In_2_Windows failed . " << std::endl;
-			return -1;
-        }
-    }
-    //destructor
-    iscas::tof_camera_destroy(h);
     return 0;
 }

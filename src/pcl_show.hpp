@@ -8,7 +8,6 @@
 #include <pcl/visualization/pcl_visualizer.h>
 
 #include <thread>
-#include "isca_tof_camera.h"
 
 typedef struct{
 	float x;

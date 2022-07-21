@@ -1,69 +1,72 @@
-### 文件目录：
+## 文件目录：
 ```
 .
+├── bin
+│   ├── pcl_show
+│   └── pcl_show_bin
+├── build
 ├── CMakeLists.txt
-├── include
-│   ├── camera_driver
-│   │   ├── camera_driver_api.h
-│   │   ├── camera_driver.h
-│   │   └── camera_driver_interface.h
-│   ├── depth_image_to_pointcloud
-│   │   ├── depth_image_to_pointcloud_api.h
-│   │   ├── depth_image_to_pointcloud.h
-│   │   └── depth_image_to_pointcloud_interface.h
-│   ├── isca_tof_camera.h
-│   ├── tof_camera.h
-│   └── tof_camera_interface.h
-└── src
-    ├── camera_driver
-    │   ├── camera_driver_api.cpp
-    │   └── camera_driver.cpp
-    ├── depth_image_to_pointcloud
-    │   ├── depth_image_to_pointcloud_api.cpp
-    │   └── depth_image_to_pointcloud.cpp
-    ├── isca_tof_camera.cpp
-    ├── main.cpp
-    └── tof_camera.cpp
-
+├── README.MD
+├── src
+│   ├── main.cpp
+│   ├── pcl_show.cpp
+│   └── pcl_show.hpp
+└── Test.sh
 ```
-
-### 编译前说明：
-
-需要正确设置CMakeLists.txt里面交叉编译工具以及OPENNI链接库的位置:
+## 依赖说明：
+#### 编译运行环境 
+    Ubuntu 20.04 
 ```
-set(CMAKE_C_COMPILER "/usr/local/ARM-toolchain/gcc-linaro-6.5.0-2018.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc")
-set(CMAKE_CXX_COMPILER "/usr/local/ARM-toolchain/gcc-linaro-6.5.0-2018.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++")
-set(OPENNI2_INCLUDE "$ENV{HOME}/AXonOpenNI-Linux-Arm-2.3/Include")
-set(OPENNI2_REDIST "$ENV{HOME}/AXonOpenNI-Linux-Arm-2.3/Redist")
+$ cat /proc/version
+Linux version 5.13.0-51-generic (buildd@lcy02-amd64-046) (gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #58~20.04.1-Ubuntu SMP Tue Jun 14 11:29:12 UTC 2022
+
+~/pcl_show$ lsb_release -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description:    Ubuntu 20.04.3 LTS
+Release:        20.04
+Codename:       focal
 ```
-
-
-### 编译说明：
+#### 安装依赖
+    官方系统源安装可能会失败，建议切换到清华源. 
+```
+    sudo apt-get install libusb-1.0-0-dev
+    sudo apt-get install libeigen3-dev
+    sudo apt-get install libflann-dev 
+    sudo apt install libvtk6-dev 
+    sudo apt-get install libflann1.9
+    sudo apt-get install  libpcap-dev 
+    sudo apt-get install libboost-all-dev
+    sudo apt-get install qt5-default 
+```
+#### 编译PCL
+  **源码下载** ：https://github.com/PointCloudLibrary/pcl/releases  
+  **官方编译指导**: https://pcl.readthedocs.io/projects/tutorials/en/latest/compiling_pcl_posix.html 
+```
+    cd pcl-pcl-1.12.0 
+    mkdir build && cd build
+    cmake -DCMAKE_BUILD_TYPE=Release ..
+    make -j2
+    sudo make -j2 install
+```
+## 编译工程说明：
 ```
 mkdir build
 cd build
 cmake ..
 make
 ```
-
-### 修改说明
-v3.2 20220602
-更新部分参数
-
-V3.1 20220520
-注释相机驱动部分
-
-v3.0 20220519
-加入舜宇点云转换为isca::PointCloud示例代码；
-加入输入原始点云输出处理后的点云的接口；
-
-v2.1 20220421
-增加点云的显示
-
-v2.0 20220402
-加入降采样的参数；
-采用for代替条件滤波器与直通滤波器，以提高运算速度；
-开放整个编译使用的工程；
-
-v1.0 20220401
-只开放点云处理的源码；
+## 测试说明 
+**示例工程支持4种输入：** 
+1. 输入单个pcd文件 .
+2. 同时输入两个pcd文件，两个文件会并排显示. 
+3. 输入单个文件目录，程序会自动遍历该目录并显示所有的pcd文件. 
+4. 输入两个文件目录，程序会自动编译两个目录，并并排显示两个文件. 
+```
+~$ ./pcl_show_bin 
+usage: 
+     1 . ./pcl_show_bin </filepath/*.pcd>                   -- show signle pcd file. 
+     2 . ./pcl_show_bin </filepath/*.pcd> </filepath/*.pcd> -- show double pcd file. 
+     3 . ./pcl_show_bin <pcd_file_dir>                      -- show continue signle pcd file. 
+     4 . ./pcl_show_bin <pcd_file_dir>    <pcd_file_dir>    -- show continue double pcd file. 
+```

@@ -19,16 +19,11 @@ include_directories(
     /usr/local/include/pcl-1.12
     /usr/include/eigen3
     /usr/include/vtk-6.3  ## add for qli enviroment
-    ./include
-    ./include/depth_image_to_pointcloud)
+)
 
 add_executable(pcl_show
     src/main.cpp
     src/pcl_show.cpp
-    src/isca_tof_camera.cpp
-    src/tof_camera.cpp
-    src/depth_image_to_pointcloud/depth_image_to_pointcloud.cpp
-    src/depth_image_to_pointcloud/depth_image_to_pointcloud_api.cpp
 )
 link_directories(/usr/local/lib)
 set(PCL_LIBS "pcl_filters;pcl_search;pcl_segmentation;pcl_common;pcl_kdtree;pcl_sample_consensus;flann_cpp_s;boost_filesystem;pcl_visualization;pcl_io;")
