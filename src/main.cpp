@@ -4,6 +4,7 @@ typedef enum {
     REGULAR_FILE,
     DIR_FILE
 }e_file_type;
+
 void usage(char * filename){
     printf("usage: \n");
     printf("     1 . %s </filepath/*.pcd>                   -- show signle pcd file. \n",filename);
@@ -35,8 +36,8 @@ int main(int argc, char *argv[])
             }
             else if (S_ISDIR(buf.st_mode))
             {
-                ptr = "Directory";        
-                type[i-1]= DIR_FILE;      
+                ptr = "Directory";
+                type[i-1]= DIR_FILE;
             }
             else
                 ptr = "** unknown mode **";
@@ -53,7 +54,8 @@ int main(int argc, char *argv[])
             }
             else  //dir
             {
-                Read_PCD_and_Show_Continue_Single(argv[1]);
+                //Read_PCD_and_Show_Continue_Single(argv[1]);
+                Read_PCD_and_Show_Double_Alg(argv[1]);
             }
             break;
         case 3:

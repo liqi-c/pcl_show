@@ -1,10 +1,20 @@
+// Licensed under the BSD 3-Clause License (the "License"); you may not use this file except
+// in compliance with the License. You may obtain a copy of the License at
+//
+// https://opensource.org/licenses/BSD-3-Clause
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
+// Author : qli@openailab.com
 
 #include "pcl_show.hpp"
-
+#include "pcl_remove_groud.hpp"
 s_xyzdata tmp_data[2] ;
 
 /*
-CameraPose 参数说明： 
+CameraPose 参数说明：
  (pos_x,pos_y,pos_z)为相机光心，
  (view_x, view_y, view_z)为光轴上的一点，他们的差向量决定了光轴方向，
  (up_x, up_y, up_z)确定相机的正上方
@@ -13,7 +23,7 @@ CameraPose 参数说明：
 	## 中间3位，视角方向，哪个有值，则看向哪个轴（面），有值的那个轴（面）朝上
    viewer_pvs.addCoordinateSystem (0.1);    // 参数越大，坐标轴越宽
 
-配置示例： 
+配置示例：
     0 0 2 0 2 0 0 ## z轴看不到，y 朝上，X水平
     0 0 2 2 0 0 0 ## z轴看不到，x 朝上，y水平
     -2 0 2 2 0 0 0 ## x,z轴夹角面向屏幕，y水平
@@ -141,7 +151,7 @@ bool PCL_Show_Continue_One(pcl::visualization::PCLVisualizer viewer_pvs,pcl::Poi
 
     viewer_pvs.updatePointCloud(pointcloud_data, rgbz, "pointcloud_data");
 
-    viewer_pvs.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "pointcloud_data");// modify show size
+    viewer_pvs.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "pointcloud_data");// modify show size
 	//viewer_pvs.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0.2, 0.7, "pointcloud_data");	//设置点云显示的颜色，rgb 在 [0,1] 范围
 	//viewer_pvs.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1, "pointcloud_data");			//设置点云透明度，默认 1 【Float going from 0.0 (transparent) to 1.0 (opaque)】
 
@@ -151,7 +161,7 @@ bool PCL_Show_Continue_One(pcl::visualization::PCLVisualizer viewer_pvs,pcl::Poi
 }
 bool PCL_Show_Continue_Double(pcl::visualization::PCLVisualizer viewer,pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1,pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2)
 {
-    static int init_flag = 0;
+    static bool init_flag = true;
     viewer.setBackgroundColor (0, 0, 0); // config backend color:dark
     viewer.addCoordinateSystem (0.1);    // show coordinate xyz
 
@@ -160,7 +170,7 @@ bool PCL_Show_Continue_Double(pcl::visualization::PCLVisualizer viewer,pcl::Poin
 	static int v1(0);  //创建左窗口显式cloud1
     pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> rgb1(cloud1, "z");
 
-    if(1 != init_flag)
+    if(true == init_flag)
 	{
         viewer.createViewPort(0, 0, 0.5, 1.0, v1);  //左右窗口大小划分，1:1
 	    viewer.setBackgroundColor(0, 0, 0, v1);
@@ -169,26 +179,27 @@ bool PCL_Show_Continue_Double(pcl::visualization::PCLVisualizer viewer,pcl::Poin
     }
     viewer.updatePointCloud(cloud1, rgb1, "cloud1");
 
-	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud1", v1);
+	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "cloud1", v1);
 
 	static int v2(1);  //创建右窗口显示cloud2
 	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> rgb2(cloud2, "z");
 
-    if(1 != init_flag)
+    if(true == init_flag)
 	{
         viewer.createViewPort(0.5, 0, 1.0, 1.0, v2);  //左右窗口大小划分，1:1
-        viewer.setBackgroundColor(0, 0, 0, v2);
-    //	viewer.addText("Cloud2", 2, 2, "Cloud2", v2);  //窗口下的标题
+       // viewer.setBackgroundColor(0.75, 0.75, 0.75, v2);
+        viewer.setBackgroundColor(1, 1, 1, v2); // black
 	    viewer.addPointCloud<pcl::PointXYZ>(cloud2, rgb2, "cloud2", v2);
     }
     viewer.updatePointCloud(cloud2, rgb2, "cloud2");
 
-	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud2", v2);
+	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "cloud2", v2);
+    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1, "cloud2",v2);
 
     viewer.spinOnce(1000);  // 100ms
- //   viewer.removeAllPointClouds(); 
- //   viewer.removeAllTexts();   
-    init_flag = 1;
+ //   viewer.removeAllPointClouds();
+ //   viewer.removeAllTexts();
+    init_flag = false;
 
     return 0;
 }
@@ -318,5 +329,55 @@ bool Read_PCD_and_Show_Continue_Double(const char * life_path, const char * righ
             break;
         }
     }while(1);
+    return 0;
+}
+
+bool Read_PCD_and_Show_Double_Alg(const char * life_path)
+{
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_ori(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_hdl(new pcl::PointCloud<pcl::PointXYZ>());
+
+    pcl::visualization::PCLVisualizer viewer_pvs("Cloud Viewer");
+
+    DIR *o_dir;
+    struct dirent *o_ptr;
+	char ori_file_name[MAX_FILENAME_LENGTH]={};
+
+    const char * OribasePath = life_path;
+
+    if ((o_dir=opendir(OribasePath)) == NULL )
+    {
+        printf("Open dir error...%s.\n",OribasePath);
+        exit(1);
+    }
+    do{
+
+        while ((o_ptr=readdir(o_dir)) != NULL)
+        {
+            if(strcmp(o_ptr->d_name,".")==0 || strcmp(o_ptr->d_name,"..")==0)    ///current dir OR parrent dir
+                continue;
+            else if(o_ptr->d_type == 8)    ///file
+            {
+                sprintf((char *)ori_file_name,"%s/%s",OribasePath,o_ptr->d_name);
+                printf("ori_file_name:%s\n",ori_file_name);
+            }
+            Read_Pcd(ori_file_name , pointcloud_ori);
+            break;
+        }
+
+        ProcessPointCloud(pointcloud_ori, pointcloud_hdl);
+
+        if(o_ptr != NULL)
+        {
+            if(PCL_Show_Continue_Double(viewer_pvs, pointcloud_ori, pointcloud_hdl ))
+            {
+                std::cout << "PCL_Show_Continue_Double failed . " << std::endl;
+                return -1;
+            }
+        }else{
+            break;
+        }
+    }while(1);
+
     return 0;
 }
