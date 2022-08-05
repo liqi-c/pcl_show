@@ -66,7 +66,7 @@ bool PCL_Show_Signle(pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data)
 	viewer.addCoordinateSystem(0.1);
 
     viewer.setCameraPosition(CameraPose[0],CameraPose[1],CameraPose[2],CameraPose[3],CameraPose[4],CameraPose[5],CameraPose[6]);
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud_ori");// modify show size
+    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "cloud_ori");// modify show size
 
 	// viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0.2, 0.7, "cloud_ori");//红色，设置点云显示的颜色，rgb 在 [0,1] 范围
 	// viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0, 0, 0, "cloud_ori");//黑色，设置点云显示的颜色，rgb 在 [0,1] 范围
@@ -123,7 +123,7 @@ bool PCL_Show_Double_In_2_Windows(pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_data_o
 	viewer.addText("Cloud2", 2, 2, "Cloud2", v2);  //窗口下的标题
 	pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> rgb2(pcl_data_hdl, "z");
 	viewer.addPointCloud<pcl::PointXYZ>(pcl_data_hdl, rgb2, "cloud2", v2);
-	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud2", v2);
+	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "cloud2", v2);
 	viewer.addCoordinateSystem(0.1, "input cloud2", v2);
 
     while (!viewer.wasStopped ())
@@ -331,8 +331,24 @@ bool Read_PCD_and_Show_Continue_Double(const char * life_path, const char * righ
     }while(1);
     return 0;
 }
+bool Read_PCD_and_Show_Signle_Alg(const char * life_path)
+{
 
-bool Read_PCD_and_Show_Double_Alg(const char * life_path)
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_ori(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_hdl(new pcl::PointCloud<pcl::PointXYZ>());
+
+    Read_Pcd(life_path , pointcloud_ori);
+
+    ProcessPointCloud(pointcloud_ori, pointcloud_hdl);
+
+    if(PCL_Show_Double_In_2_Windows( pointcloud_ori, pointcloud_hdl))
+    {
+        std::cout << "PCL_Show_Continue_Double failed . " << std::endl;
+        return -1;
+    }
+    return 0;
+}
+bool Read_PCD_and_Show_Continue_Alg(const char * life_path)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_ori(new pcl::PointCloud<pcl::PointXYZ>());
     pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_hdl(new pcl::PointCloud<pcl::PointXYZ>());

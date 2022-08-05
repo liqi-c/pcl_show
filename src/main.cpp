@@ -2,7 +2,8 @@
 
 typedef enum {
     REGULAR_FILE,
-    DIR_FILE
+    DIR_FILE,
+    UNKNOWN
 }e_file_type;
 
 void usage(char * filename){
@@ -11,6 +12,8 @@ void usage(char * filename){
     printf("     2 . %s </filepath/*.pcd> </filepath/*.pcd> -- show double pcd file. \n",filename);
     printf("     3 . %s <pcd_file_dir>                      -- show continue signle pcd file. \n",filename);
     printf("     4 . %s <pcd_file_dir>    <pcd_file_dir>    -- show continue double pcd file. \n",filename);
+    printf("     5 . %s alg               </filepath/*.pcd>    -- show signle pcd file and alg handle result. \n",filename);
+    printf("     6 . %s alg               <pcd_file_dir>       -- show continue double pcd file and alg handle result. \n",filename);
 
     return ;
 }
@@ -26,6 +29,7 @@ int main(int argc, char *argv[])
         {
             if (lstat(argv[i], &buf) < 0)
             {
+                type[i-1]= UNKNOWN;
                 perror("lstat");
                 continue;
             }
@@ -54,8 +58,7 @@ int main(int argc, char *argv[])
             }
             else  //dir
             {
-                //Read_PCD_and_Show_Continue_Single(argv[1]);
-                Read_PCD_and_Show_Double_Alg(argv[1]);
+                Read_PCD_and_Show_Continue_Single(argv[1]);
             }
             break;
         case 3:
@@ -66,6 +69,14 @@ int main(int argc, char *argv[])
             else if(DIR_FILE == type[0] && DIR_FILE == type[1] )
             {
                 Read_PCD_and_Show_Continue_Double(argv[1],argv[2]);
+            } 
+            else if(UNKNOWN == type[0] && REGULAR_FILE == type[1] )
+            {
+                Read_PCD_and_Show_Signle_Alg(argv[2]);
+            }
+            else if(UNKNOWN == type[0] && DIR_FILE == type[1] )
+            {
+                Read_PCD_and_Show_Continue_Alg(argv[2]);
             }
             break;
         default :
