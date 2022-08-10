@@ -34,5 +34,7 @@ bool Read_PCD_and_Show_Continue_Single(const char * life_path);
 bool Read_PCD_and_Show_Continue_Double(const char * life_path, const char * right_path);
 bool Read_PCD_and_Show_Signle_Alg(const char * life_path);
 bool Read_PCD_and_Show_Continue_Alg(const char * life_path);
+bool Read_PCD_and_Show_Signle_AlgSeg(const char * life_path);
+bool Read_PCD_and_Show_Continue_AlgSeg(const char * life_path);
 
 #endif

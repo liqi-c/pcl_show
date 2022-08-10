@@ -29,6 +29,6 @@ add_executable(${PROJECT_NAME}
     src/pcl_remove_groud.cpp
 )
 link_directories(/usr/local/lib)
-set(PCL_LIBS "pcl_filters;pcl_search;pcl_segmentation;pcl_common;pcl_kdtree;pcl_sample_consensus;flann_cpp_s;boost_filesystem;pcl_visualization;pcl_io;")
+set(PCL_LIBS "pcl_filters;pcl_search;pcl_segmentation;pcl_common;pcl_kdtree;pcl_sample_consensus;flann_cpp_s;boost_filesystem;pcl_visualization;pcl_io;pcl_features")
 set(VTK_LIBS "vtkCommonCore-6.3;vtkRenderingCore-6.3;vtkCommonDataModel-6.3;vtkCommonMath-6.3")
 target_link_libraries(${PROJECT_NAME} ${PCL_LIBS} ${VTK_LIBS})

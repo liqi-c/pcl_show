@@ -348,6 +348,25 @@ bool Read_PCD_and_Show_Signle_Alg(const char * life_path)
     }
     return 0;
 }
+bool Read_PCD_and_Show_Signle_AlgSeg(const char * life_path)
+{
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_ori(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_hdl(new pcl::PointCloud<pcl::PointXYZ>());
+/*Step 1 : 读取pcd文件 */
+    Read_Pcd(life_path , pointcloud_ori);
+/*Step 2 : 去除地面 */
+    ProcessPointCloud(pointcloud_ori, pointcloud_hdl);
+/*Step 3 : 点云分割 */
+    Pcl_Segmentation_EC(pointcloud_hdl);
+/*Step 4 : 显示处理结果和原始点云 */
+    if(PCL_Show_Double_In_2_Windows( pointcloud_ori, pointcloud_hdl))
+    {
+        std::cout << "PCL_Show_Continue_Double failed . " << std::endl;
+        return -1;
+    }
+    return 0;
+}
 bool Read_PCD_and_Show_Continue_Alg(const char * life_path)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_ori(new pcl::PointCloud<pcl::PointXYZ>());
@@ -383,6 +402,65 @@ bool Read_PCD_and_Show_Continue_Alg(const char * life_path)
 
         ProcessPointCloud(pointcloud_ori, pointcloud_hdl);
 
+        if(o_ptr != NULL)
+        {
+            if(PCL_Show_Continue_Double(viewer_pvs, pointcloud_ori, pointcloud_hdl ))
+            {
+                std::cout << "PCL_Show_Continue_Double failed . " << std::endl;
+                return -1;
+            }
+        }else{
+            break;
+        }
+    }while(1);
+
+    return 0;
+}
+bool Read_PCD_and_Show_Continue_AlgSeg(const char * life_path)
+{
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_ori(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pointcloud_hdl(new pcl::PointCloud<pcl::PointXYZ>());
+
+    pcl::visualization::PCLVisualizer viewer_pvs("Cloud Viewer");
+
+    DIR *o_dir;
+    struct dirent *o_ptr;
+	char ori_file_name[MAX_FILENAME_LENGTH]={};
+
+    const char * OribasePath = life_path;
+
+    if ((o_dir=opendir(OribasePath)) == NULL )
+    {
+        printf("Open dir error...%s.\n",OribasePath);
+        exit(1);
+    }
+    do{
+
+        while ((o_ptr=readdir(o_dir)) != NULL)
+        {
+            if(strcmp(o_ptr->d_name,".")==0 || strcmp(o_ptr->d_name,"..")==0)    ///current dir OR parrent dir
+                continue;
+            else if(o_ptr->d_type == 8)    ///file
+            {
+                sprintf((char *)ori_file_name,"%s/%s",OribasePath,o_ptr->d_name);
+                printf("ori_file_name:%s\n",ori_file_name);
+            }
+            Read_Pcd(ori_file_name , pointcloud_ori);
+            break;
+        }
+
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        double start_time = tv.tv_sec + tv.tv_usec / 1e6, current_time;
+
+        ProcessPointCloud(pointcloud_ori, pointcloud_hdl);
+
+        gettimeofday(&tv, NULL);
+        current_time = tv.tv_sec + tv.tv_usec / 1e6;
+        printf("ProcessPointCloud Process: %lf ms\n", (current_time - start_time)*1e3);
+
+        Pcl_Segmentation_EC(pointcloud_hdl);
+        // Pcl_Segmentation_RegGrow(pointcloud_hdl);
         if(o_ptr != NULL)
         {
             if(PCL_Show_Continue_Double(viewer_pvs, pointcloud_ori, pointcloud_hdl ))
