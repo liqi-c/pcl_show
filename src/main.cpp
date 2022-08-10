@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 {
 	int i;
 	struct stat buf;
-	char *ptr;
+	const char *ptr;
     int type[2]={};
     if(0 != argc){
         // printf("argc = %d \n",argc);
